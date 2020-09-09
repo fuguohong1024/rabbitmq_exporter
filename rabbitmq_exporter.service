@@ -1,0 +1,10 @@
+[Unit]
+Description=rabbitmq_exporter
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/export/rabbitmq_exporter  --mq.user=admin  --mq.passwd=123456
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,198 @@
+Index: main.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package main\r\n\r\nimport (\r\n\t\"github.com/go-kit/kit/log/level\"\r\n\t\"github.com/prometheus/client_golang/prometheus\"\r\n\t\"github.com/prometheus/client_golang/prometheus/promhttp\"\r\n\t\"github.com/prometheus/common/version\"\r\n\t\"gopkg.in/alecthomas/kingpin.v2\"\r\n\t\"mq/api\"\r\n\t\"mq/etc\"\r\n\t\"net/http\"\r\n\t\"os\"\r\n)\r\n\r\nfunc main() {\r\n\tvar (\r\n\t\tName = \"rabbit_mq_exporter\"\r\n\r\n\t\tlistenAddress = kingpin.Flag(\"web.listen,address\", \"web listen address\").\r\n\t\t\tDefault(\":41690\").Envar(\"Listen_ADD\").String()\r\n\r\n\r\n\t\tmqurl = kingpin.Flag(\"mq.url\",\r\n\t\t\t\"the url of rabbit_mq\").\r\n\t\t\tDefault(\"http://127.0.0.1:15672\").Envar(\"MQ_URL\").String()\r\n\r\n\t\tmquser = kingpin.Flag(\"mq.user\",\"the user of rabbit_mq\").\r\n\t\t\tDefault(\"\").String()\r\n\r\n\t\tmqpasswd = kingpin.Flag(\"mq.passwd\",\"the password of rabbit_mq\").\r\n\t\t\tDefault(\"\").String()\r\n\r\n\t\ttimeInterval = kingpin.Flag(\"collect.interval\",\r\n\t\t\t\"collect mq info  interval \").\r\n\t\t\tDefault(\"30s\").Envar(\"COLLECT_INTERVAL\").Duration()\r\n\r\n\t\tlogLevel = kingpin.Flag(\"log.level\",\r\n\t\t\t\"Sets the loglevel. Valid levels are debug, info, warn, error\").\r\n\t\t\tDefault(\"info\").Envar(\"LOG_LEVEL\").String()\r\n\r\n\t\tlogFormat = kingpin.Flag(\"log.format\",\r\n\t\t\t\"Sets the log format. Valid formats are json and logfmt\").\r\n\t\t\tDefault(\"logfmt\").Envar(\"LOG_FMT\").String()\r\n\r\n\t\tlogOutput = kingpin.Flag(\"log.output\",\r\n\t\t\t\"Sets the log output. Valid outputs are stdout and stderr\").\r\n\t\t\tDefault(\"stdout\").Envar(\"LOG_OUTPUT\").String()\r\n\t)\r\n\r\n\r\n\tkingpin.Version(version.Print(Name))\r\n\tkingpin.CommandLine.HelpFlag.Short('h')\r\n\tkingpin.Parse()\r\n\r\n\tlogger := etc.GetLogger(*logLevel, *logOutput,*logFormat)\r\n\r\n\tif *mquser == \"\"{\r\n\t\tlevel.Error(logger).Log(\"err\",\"mq user is null\")\r\n\t\tkingpin.Usage()\r\n\t\tos.Exit(1)\r\n\t}else if *mqpasswd == \"\"{\r\n\t\tlevel.Error(logger).Log(\"err\",\"mq passwd is null\")\r\n\t\tkingpin.Usage()\r\n\t\tos.Exit(1)\r\n\t}\r\n\r\n\t//kingpin.Usage()\r\n\r\n\r\n\thttpClient := &http.Client{Timeout: *timeInterval}\r\n\r\n\r\n\r\n\tcollect := api.Newcolloect(*mqurl,*mquser,*mqpasswd,logger,httpClient,*timeInterval)\r\n\r\n\tprometheus.MustRegister(collect)\r\n\tcollect.Updatemetrics()\r\n\r\n\r\n\thttp.Handle(\"/metrics\", promhttp.Handler())\r\n\terr := http.ListenAndServe(*listenAddress, nil)\r\n\tif err != nil {\r\n\t\t_ = level.Error(logger).Log(\r\n\t\t\t\"msg\", \"http server quit\",\r\n\t\t\t\"err\", err,\r\n\t\t)\r\n\t\tos.Exit(1)\r\n\r\n\t}else if err == nil {\r\n\t\t_= level.Info(logger).Log(\"starting  rabbit_mq_exporter at port\",*listenAddress)\r\n\t}\r\n\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- main.go	(revision 28050d7796a2ab4533351acd32d22fce76fa72dd)
++++ main.go	(date 1599639312640)
+@@ -6,8 +6,8 @@
+ 	"github.com/prometheus/client_golang/prometheus/promhttp"
+ 	"github.com/prometheus/common/version"
+ 	"gopkg.in/alecthomas/kingpin.v2"
+-	"mq/api"
+-	"mq/etc"
++	"rabbitmq_exporter/api"
++	"rabbitmq_exporter/etc"
+ 	"net/http"
+ 	"os"
+ )
+@@ -16,7 +16,7 @@
+ 	var (
+ 		Name = "rabbit_mq_exporter"
+ 
+-		listenAddress = kingpin.Flag("web.listen,address", "web listen address").
++		listenAddress = kingpin.Flag("web.listen.address", "web listen address").
+ 			Default(":41690").Envar("Listen_ADD").String()
+ 
+ 
+Index: vendor/github.com/prometheus/common/version/info.go
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Copyright 2016 The Prometheus Authors\r\n// Licensed under the Apache License, Version 2.0 (the \"License\");\r\n// you may not use this file except in compliance with the License.\r\n// You may obtain a copy of the License at\r\n//\r\n// http://www.apache.org/licenses/LICENSE-2.0\r\n//\r\n// Unless required by applicable law or agreed to in writing, software\r\n// distributed under the License is distributed on an \"AS IS\" BASIS,\r\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\r\n// See the License for the specific language governing permissions and\r\n// limitations under the License.\r\n\r\npackage version\r\n\r\nimport (\r\n\t\"bytes\"\r\n\t\"fmt\"\r\n\t\"runtime\"\r\n\t\"strings\"\r\n\t\"text/template\"\r\n\t//\"strconv\"\r\n\t\"time\"\r\n\t\"github.com/prometheus/client_golang/prometheus\"\r\n)\r\n\r\n// Build information. Populated at build-time.\r\nvar (\r\n\tVersion   = \"v1\"\r\n\tRemark   = \"单节点mq有些数据出不来..\"\r\n\tBranch    = \"master\"\r\n\tBuildUser = \"fgh\"\r\n\tBuildDate = time.Now().Format(\"2006-01-02\")\r\n\tGoVersion = runtime.Version()\r\n)\r\n\r\n// NewCollector returns a collector that exports metrics about current version\r\n// information.\r\nfunc NewCollector(program string) prometheus.Collector {\r\n\treturn prometheus.NewGaugeFunc(\r\n\t\tprometheus.GaugeOpts{\r\n\t\t\tNamespace: program,\r\n\t\t\tName:      \"build_info\",\r\n\t\t\tHelp: fmt.Sprintf(\r\n\t\t\t\t\"A metric with a constant '1' value labeled by version, revision, branch, and goversion from which %s was built.\",\r\n\t\t\t\tprogram,\r\n\t\t\t),\r\n\t\t\tConstLabels: prometheus.Labels{\r\n\t\t\t\t\"version\":   Version,\r\n\t\t\t\t\"remark\":  Remark,\r\n\t\t\t\t\"branch\":    Branch,\r\n\t\t\t\t\"goversion\": GoVersion,\r\n\t\t\t},\r\n\t\t},\r\n\t\tfunc() float64 { return 1 },\r\n\t)\r\n}\r\n\r\n// versionInfoTmpl contains the template used by Info.\r\n// del \", revision: {{.revision}}\"\r\nvar versionInfoTmpl = `\r\n{{.program}}, version {{.version}} (branch: {{.branch}})\r\n  build user:       {{.buildUser}}\r\n  build date:       {{.buildDate}}\r\n  go version:       {{.goVersion}}\r\n  remark:           {{.remark}}        \r\n`\r\n\r\n// Print returns version information.\r\nfunc Print(program string) string {\r\n\tm := map[string]string{\r\n\t\t\"program\":   program,\r\n\t\t\"version\":   Version,\r\n\t\t\"remark\":  Remark,\r\n\t\t\"branch\":    Branch,\r\n\t\t\"buildUser\": BuildUser,\r\n\t\t\"buildDate\": BuildDate,\r\n\t\t\"goVersion\": GoVersion,\r\n\t}\r\n\tt := template.Must(template.New(\"version\").Parse(versionInfoTmpl))\r\n\r\n\tvar buf bytes.Buffer\r\n\tif err := t.ExecuteTemplate(&buf, \"version\", m); err != nil {\r\n\t\tpanic(err)\r\n\t}\r\n\treturn strings.TrimSpace(buf.String())\r\n}\r\n\r\n// Info returns version, branch and revision information.\r\nfunc Info() string {\r\n\treturn fmt.Sprintf(\"(version=%s, branch=%s, remark=%s)\", Version, Branch, Remark)\r\n}\r\n\r\n// BuildContext returns goVersion, buildUser and buildDate information.\r\nfunc BuildContext() string {\r\n\treturn fmt.Sprintf(\"(go=%s, user=%s, date=%s)\", GoVersion, BuildUser, BuildDate)\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- vendor/github.com/prometheus/common/version/info.go	(revision 28050d7796a2ab4533351acd32d22fce76fa72dd)
++++ vendor/github.com/prometheus/common/version/info.go	(date 1599639597838)
+@@ -27,7 +27,7 @@
+ // Build information. Populated at build-time.
+ var (
+ 	Version   = "v1"
+-	Remark   = "单节点mq有些数据出不来.."
++	Remark   = "单节点mq有些数据没有"
+ 	Branch    = "master"
+ 	BuildUser = "fgh"
+ 	BuildDate = time.Now().Format("2006-01-02")
+Index: .idea/rabbitmq_exporter.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/rabbitmq_exporter.iml	(date 1599622808185)
++++ .idea/rabbitmq_exporter.iml	(date 1599622808185)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<module type="WEB_MODULE" version="4">
++  <component name="NewModuleRootManager">
++    <content url="file://$MODULE_DIR$" />
++    <orderEntry type="inheritedJdk" />
++    <orderEntry type="sourceFolder" forTests="false" />
++  </component>
++</module>
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/vcs.xml	(date 1599622808198)
++++ .idea/vcs.xml	(date 1599622808198)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># rabbitmq_exporter\r\nrabbitmq_exporter  for prometheus\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- README.md	(revision 28050d7796a2ab4533351acd32d22fce76fa72dd)
++++ README.md	(date 1599623136991)
+@@ -1,2 +1,20 @@
+ # rabbitmq_exporter
+ rabbitmq_exporter  for prometheus
++
++
++###启动参数：
++--web.listen.address   程序监听地址
++
++--mq.url  mq_api_url
++
++--mq.user mq_user
++
++--mq.passwd mq_password
++
++--collect.interval 数据采集间隔
++
++--log.level 日志等级：debug, info, warn, error
++
++--log.format 日志格式：json，format
++
++--log.output 日志输出：stderr，stdout
+\ No newline at end of file
+Index: vendor/modules.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751\r\ngithub.com/alecthomas/template\r\ngithub.com/alecthomas/template/parse\r\n# github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d\r\ngithub.com/alecthomas/units\r\n# github.com/beorn7/perks v1.0.1\r\ngithub.com/beorn7/perks/quantile\r\n# github.com/cespare/xxhash/v2 v2.1.1\r\ngithub.com/cespare/xxhash/v2\r\n# github.com/go-kit/kit v0.10.0\r\n## explicit\r\ngithub.com/go-kit/kit/log\r\ngithub.com/go-kit/kit/log/level\r\n# github.com/go-logfmt/logfmt v0.5.0\r\ngithub.com/go-logfmt/logfmt\r\n# github.com/golang/protobuf v1.4.2\r\ngithub.com/golang/protobuf/proto\r\ngithub.com/golang/protobuf/ptypes\r\ngithub.com/golang/protobuf/ptypes/any\r\ngithub.com/golang/protobuf/ptypes/duration\r\ngithub.com/golang/protobuf/ptypes/timestamp\r\n# github.com/matttproud/golang_protobuf_extensions v1.0.1\r\ngithub.com/matttproud/golang_protobuf_extensions/pbutil\r\n# github.com/prometheus/client_golang v1.7.1\r\n## explicit\r\ngithub.com/prometheus/client_golang/prometheus\r\ngithub.com/prometheus/client_golang/prometheus/internal\r\ngithub.com/prometheus/client_golang/prometheus/promhttp\r\n# github.com/prometheus/client_model v0.2.0\r\ngithub.com/prometheus/client_model/go\r\n# github.com/prometheus/common v0.13.0\r\n## explicit\r\ngithub.com/prometheus/common/expfmt\r\ngithub.com/prometheus/common/internal/bitbucket.org/ww/goautoneg\r\ngithub.com/prometheus/common/model\r\ngithub.com/prometheus/common/version\r\n# github.com/prometheus/procfs v0.1.3\r\ngithub.com/prometheus/procfs\r\ngithub.com/prometheus/procfs/internal/fs\r\ngithub.com/prometheus/procfs/internal/util\r\n# golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae\r\ngolang.org/x/sys/internal/unsafeheader\r\ngolang.org/x/sys/unix\r\ngolang.org/x/sys/windows\r\n# google.golang.org/protobuf v1.23.0\r\ngoogle.golang.org/protobuf/encoding/prototext\r\ngoogle.golang.org/protobuf/encoding/protowire\r\ngoogle.golang.org/protobuf/internal/descfmt\r\ngoogle.golang.org/protobuf/internal/descopts\r\ngoogle.golang.org/protobuf/internal/detrand\r\ngoogle.golang.org/protobuf/internal/encoding/defval\r\ngoogle.golang.org/protobuf/internal/encoding/messageset\r\ngoogle.golang.org/protobuf/internal/encoding/tag\r\ngoogle.golang.org/protobuf/internal/encoding/text\r\ngoogle.golang.org/protobuf/internal/errors\r\ngoogle.golang.org/protobuf/internal/fieldnum\r\ngoogle.golang.org/protobuf/internal/fieldsort\r\ngoogle.golang.org/protobuf/internal/filedesc\r\ngoogle.golang.org/protobuf/internal/filetype\r\ngoogle.golang.org/protobuf/internal/flags\r\ngoogle.golang.org/protobuf/internal/genname\r\ngoogle.golang.org/protobuf/internal/impl\r\ngoogle.golang.org/protobuf/internal/mapsort\r\ngoogle.golang.org/protobuf/internal/pragma\r\ngoogle.golang.org/protobuf/internal/set\r\ngoogle.golang.org/protobuf/internal/strs\r\ngoogle.golang.org/protobuf/internal/version\r\ngoogle.golang.org/protobuf/proto\r\ngoogle.golang.org/protobuf/reflect/protoreflect\r\ngoogle.golang.org/protobuf/reflect/protoregistry\r\ngoogle.golang.org/protobuf/runtime/protoiface\r\ngoogle.golang.org/protobuf/runtime/protoimpl\r\ngoogle.golang.org/protobuf/types/known/anypb\r\ngoogle.golang.org/protobuf/types/known/durationpb\r\ngoogle.golang.org/protobuf/types/known/timestamppb\r\n# gopkg.in/alecthomas/kingpin.v2 v2.2.6\r\n## explicit\r\ngopkg.in/alecthomas/kingpin.v2\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- vendor/modules.txt	(revision 28050d7796a2ab4533351acd32d22fce76fa72dd)
++++ vendor/modules.txt	(date 1599623447464)
+@@ -1,7 +1,9 @@
+ # github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
++## explicit
+ github.com/alecthomas/template
+ github.com/alecthomas/template/parse
+ # github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
++## explicit
+ github.com/alecthomas/units
+ # github.com/beorn7/perks v1.0.1
+ github.com/beorn7/perks/quantile
+Index: go.mod
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>module mq\r\n\r\ngo 1.14\r\n\r\nrequire (\r\n\tgithub.com/go-kit/kit v0.10.0\r\n\tgithub.com/prometheus/client_golang v1.7.1\r\n\tgithub.com/prometheus/common v0.13.0\r\n\tgopkg.in/alecthomas/kingpin.v2 v2.2.6\r\n)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- go.mod	(revision 28050d7796a2ab4533351acd32d22fce76fa72dd)
++++ go.mod	(date 1599623442261)
+@@ -1,8 +1,10 @@
+-module mq
++module rabbitmq_exporter
+ 
+ go 1.14
+ 
+ require (
++	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
++	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d
+ 	github.com/go-kit/kit v0.10.0
+ 	github.com/prometheus/client_golang v1.7.1
+ 	github.com/prometheus/common v0.13.0
+Index: .idea/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/.gitignore	(date 1599622808666)
++++ .idea/.gitignore	(date 1599622808666)
+@@ -0,0 +1,8 @@
++# Default ignored files
++/shelf/
++/workspace.xml
++# Datasource local storage ignored files
++/dataSources/
++/dataSources.local.xml
++# Editor-based HTTP Client requests
++/httpRequests/
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(date 1599622808210)
++++ .idea/misc.xml	(date 1599622808210)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="JavaScriptSettings">
++    <option name="languageLevel" value="ES6" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/modules.xml	(date 1599622808221)
++++ .idea/modules.xml	(date 1599622808221)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/.idea/rabbitmq_exporter.iml" filepath="$PROJECT_DIR$/.idea/rabbitmq_exporter.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
