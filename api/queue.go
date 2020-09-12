@@ -2,9 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -60,8 +58,7 @@ func (ScrapeQueue) Scrape(client *MqClient, ch chan<- prometheus.Metric) error {
 	var t queue
 	err = json.Unmarshal(data, &t)
 	if err != nil {
-		reason := fmt.Sprintf("%v,%v", endpoint, err)
-		log.Errorf("Unmarshal  JSON err:%v", endpoint, reason)
+		return err
 	}
 	for _, v := range t {
 		ch <- prometheus.MustNewConstMetric(queuehealth, prometheus.GaugeValue, 1.0, endpoint)

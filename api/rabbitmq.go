@@ -36,9 +36,9 @@ type MqClient struct {
 
 // 赋值MqOpts
 func (m *MqOpts) AddFlag() {
-	flag.StringVar(&m.Url, "mq.url", "http://testmojing.ts/api", "HTTP API address of a mq server or agent. (prefix with https:// to connect over HTTPS)")
-	flag.StringVar(&m.Username, "mq.user", "user", "mq username")
-	flag.StringVar(&m.Password, "mq.pwd", "2Jv4v3Qjrx", "mq password")
+	flag.StringVar(&m.Url, "mq.url", "http://127.0.0.1:15672/api", "HTTP API address of a mq server or agent. (prefix with https:// to connect over HTTPS)")
+	flag.StringVar(&m.Username, "mq.user", "admin", "mq username")
+	flag.StringVar(&m.Password, "mq.pwd", "123456", "mq password")
 	//flag.StringVar(&m.UA, "harbor-ua", "harbor_exporter", "user agent of the harbor http client")
 	flag.DurationVar(&m.Timeout, "timeout", time.Second*5, "Timeout on HTTP requests to the harbor API.")
 	//flag.BoolVar(&m.Insecure, "insecure", true, "Disable TLS host verification.")

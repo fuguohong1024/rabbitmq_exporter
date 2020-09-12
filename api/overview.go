@@ -2,9 +2,7 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
-	log "github.com/sirupsen/logrus"
 )
 
 // 定义desc,调用MustNewConstMetric生产指标并通过channel传递数据
@@ -81,8 +79,7 @@ func (ScrapeOverview) Scrape(client *MqClient, ch chan<- prometheus.Metric) erro
 	var t overview
 	err = json.Unmarshal(data, &t)
 	if err != nil {
-		reason := fmt.Sprintf("%v,%v", endpoint, err)
-		log.Errorf("Unmarshal  JSON err:%v", endpoint, reason)
+		return err
 	}
 	// 设定值
 	ch <- prometheus.MustNewConstMetric(overviewhealth, prometheus.GaugeValue, 1.0, endpoint)

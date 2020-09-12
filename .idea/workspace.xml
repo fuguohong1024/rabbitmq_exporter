@@ -26,8 +26,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5a1b24e3-936c-4a1e-b769-9a4b6d5d1748" name="Default Changelist" comment="v2">
-      <change beforePath="$PROJECT_DIR$/rabbitmq_exporter" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/rabbitmq_exporter.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/node.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/node.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/overview.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/overview.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/queue.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/rabbitmq.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/rabbitmq.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rabbitmq_exporter.service" beforeDir="false" afterPath="$PROJECT_DIR$/rabbitmq_exporter.service" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -127,6 +132,10 @@
     <integration-enabled>true</integration-enabled>
   </component>
   <component name="WindowStateProjectService">
+    <state x="380" y="164" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1599926578025">
+      <screen x="0" y="0" width="1366" height="728" />
+    </state>
+    <state x="380" y="164" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.728@0.0.1366.728" timestamp="1599926578025" />
     <state x="275" y="96" key="Vcs.Push.Dialog.v2" timestamp="1599720212040">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
