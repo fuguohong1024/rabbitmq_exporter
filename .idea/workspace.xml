@@ -25,86 +25,9 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a1b24e3-936c-4a1e-b769-9a4b6d5d1748" name="Default Changelist" comment="add check">
-      <change afterPath="$PROJECT_DIR$/api/exporter.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/rabbitmq.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/api/scraper.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/collect.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/err.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/health.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/node.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/node.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/overview.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/overview.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/queue.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/queue.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/etc/logger.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/doc.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/exec.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/funcs.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/go.mod" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/helper.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/parse/lex.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/parse/node.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/parse/parse.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/template/template.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/COPYING" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/bytes.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/doc.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/go.mod" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/go.sum" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/si.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/alecthomas/units/util.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/doc.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/json_logger.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/level/doc.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/level/level.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/log.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/logfmt_logger.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/nop_logger.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/stdlib.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/sync.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-kit/kit/log/value.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/.travis.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/CHANGELOG.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/decode.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/doc.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/encode.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/go.mod" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/go-logfmt/logfmt/jsonstring.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/github.com/prometheus/common/version/info.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/.travis.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/COPYING" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/actions.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/app.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/args.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/cmd.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/completions.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/doc.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/envar.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/flags.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/global.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/guesswidth.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/guesswidth_unix.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/model.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/parser.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/parsers.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/templates.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/usage.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/values.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/values.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/gopkg.in/alecthomas/kingpin.v2/values_generated.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vendor/modules.txt" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/modules.txt" afterDir="false" />
+    <list default="true" id="5a1b24e3-936c-4a1e-b769-9a4b6d5d1748" name="Default Changelist" comment="v2">
+      <change beforePath="$PROJECT_DIR$/rabbitmq_exporter" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rabbitmq_exporter.exe" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -197,7 +120,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="add check" />
-    <option name="LAST_COMMIT_MESSAGE" value="add check" />
+    <MESSAGE value="v2" />
+    <option name="LAST_COMMIT_MESSAGE" value="v2" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
