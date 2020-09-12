@@ -1,77 +1,141 @@
 package main
 
 import (
-	"github.com/go-kit/kit/log/level"
+	"fmt"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/version"
-	"gopkg.in/alecthomas/kingpin.v2"
+	log "github.com/sirupsen/logrus"
+	flag "github.com/spf13/pflag"
 	"net/http"
 	"os"
 	"rabbitmq_exporter/api"
-	"rabbitmq_exporter/etc"
+	"runtime"
+	"time"
 )
 
 func main() {
-	var (
-		Name = "rabbit_mq_exporter"
 
-		listenAddress = kingpin.Flag("web.listen.address", "web listen address").
-				Default(":41690").Envar("Listen_ADD").String()
+	listenAddress := flag.String("web.listen.address", ":49107", "Address to listen on for web interface and telemetry.")
+	metricsPath := flag.String("web.telemetry.path", "/metrics", "Path under which to expose metrics.")
+	logLevel := flag.String("log-level", "info", "The logging level:[debug, info, warn, error, fatal]")
+	logFile := flag.String("log-output", "", "the file which log to, default stdout")
+	v := flag.Bool("version", false, "print version info!")
 
-		mqurl = kingpin.Flag("mq.url",
-			"the url of rabbit_mq").
-			Default("http://127.0.0.1:15672").Envar("MQ_URL").String()
+	opts := &api.MqOpts{}
+	// 复制opts
+	opts.AddFlag()
 
-		mquser = kingpin.Flag("mq.user", "the user of rabbit_mq").
-			Default("").String()
+	// 根据默认设置或flag生成抓取清单
+	scraperFlags := map[api.Scraper]*bool{}
+	for scraper, enabledByDefault := range api.Scrapers {
+		defaultOn := false
+		if enabledByDefault {
+			defaultOn = true
+		}
+		f := flag.Bool("collect."+scraper.Name(), defaultOn, scraper.Help())
+		scraperFlags[scraper] = f
+	}
+	flag.Parse()
 
-		mqpasswd = kingpin.Flag("mq.passwd", "the password of rabbit_mq").
-				Default("").String()
-
-		timeInterval = kingpin.Flag("collect.interval",
-			"collect mq info  interval ").
-			Default("30s").Envar("COLLECT_INTERVAL").Duration()
-
-		logLevel = kingpin.Flag("log.level",
-			"Sets the loglevel. Valid levels are debug, info, warn, error").
-			Default("info").Envar("LOG_LEVEL").String()
-
-		logFormat = kingpin.Flag("log.format",
-			"Sets the log format. Valid formats are json and logfmt").
-			Default("logfmt").Envar("LOG_FMT").String()
-
-		logOutput = kingpin.Flag("log.output",
-			"Sets the log output. Valid outputs are stdout and stderr").
-			Default("stdout").Envar("LOG_OUTPUT").String()
-	)
-
-	kingpin.Version(version.Print(Name))
-	kingpin.CommandLine.HelpFlag.Short('h')
-	kingpin.Parse()
-
-	logger := etc.GetLogger(*logLevel, *logOutput, *logFormat)
-
-	api.Check(*mquser, *mqpasswd, logger)
-
-	httpClient := &http.Client{Timeout: *timeInterval}
-
-	collect := api.Newcolloect(*mqurl, *mquser, *mqpasswd, logger, httpClient, *timeInterval)
-
-	prometheus.MustRegister(collect)
-	collect.Updatemetrics()
-
-	http.Handle("/metrics", promhttp.Handler())
-	err := http.ListenAndServe(*listenAddress, nil)
-	if err != nil {
-		_ = level.Error(logger).Log(
-			"msg", "http server quit",
-			"err", err,
-		)
-		os.Exit(1)
-
-	} else if err == nil {
-		_ = level.Info(logger).Log("starting  rabbit_mq_exporter at port", *listenAddress)
+	if *v {
+		fmt.Print(versionPrint())
+		return
 	}
 
+	//抓取清单
+	enabledScrapers := []api.Scraper{}
+	for scraper, enabled := range scraperFlags {
+		if *enabled {
+			log.Infof("Scraper enabled %s", scraper.Name())
+			enabledScrapers = append(enabledScrapers, scraper)
+		}
+	}
+
+	if err := LogInit(*logLevel, *logFile); err != nil {
+		log.Fatal(errors.Wrap(err, "set log level error"))
+	}
+
+	// NewExporter
+	exporter, err := api.NewExporter(opts, api.NewMetrics(), enabledScrapers)
+	if err != nil {
+		log.Infof("New Exporter err:%s", err)
+	}
+
+	// 注册
+	prometheus.MustRegister(exporter)
+
+	// 设置路由函数
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html>
+             <head><title>Rabbitmq_exporter</title></head>
+             <body>
+             <p><a href='` + *metricsPath + `'>Metrics</a></p>
+             </body>
+             </html>`))
+	})
+
+	http.Handle(*metricsPath, promhttp.InstrumentMetricHandler(
+		prometheus.DefaultRegisterer,
+		promhttp.HandlerFor(
+			prometheus.DefaultGatherer,
+			promhttp.HandlerOpts{
+				ErrorLog: log.StandardLogger(),
+			},
+		),
+	),
+	)
+
+	// 检测服务状态路由
+	http.HandleFunc("/-/ready", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, "ok")
+	})
+	log.Infof("Listening on address %s", *listenAddress)
+
+	if err := http.ListenAndServe(*listenAddress, nil); err != nil {
+		log.Infof("http listen err:%s", err)
+	}
+
+}
+
+var (
+	builduser = "fgh"
+	Version   = "v2"
+	branch    = "master"                        // state of git tree, either "clean" or "dirty"
+	buildDate = time.Now().Format("2006-01-02") // build date, output of $(date +'%Y-%m-%dT%H:%M:%S')
+)
+
+func versionPrint() string {
+	return fmt.Sprintf(`Name: %s
+Version: %s
+build user: %s
+build date: %s
+branch: %s
+go version: %s
+Compiler: %s
+Platform: %s/%s
+`, api.Name(), Version, builduser, buildDate, branch, runtime.Version(), runtime.Compiler, runtime.GOOS, runtime.GOARCH)
+}
+
+func LogInit(level, file string) error {
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp:   true,
+		TimestampFormat: "2006-01-02 15:04:05",
+	})
+	le, err := log.ParseLevel(level)
+	if err != nil {
+		return err
+	}
+	log.SetLevel(le)
+
+	if file != "" {
+		f, err := os.OpenFile(file, os.O_WRONLY|os.O_CREATE, 0755)
+		if err != nil {
+			return err
+		}
+		log.SetOutput(f)
+	}
+
+	return nil
 }

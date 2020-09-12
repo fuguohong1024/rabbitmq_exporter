@@ -3,77 +3,123 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-kit/kit/log/level"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"sync"
-	"time"
+	"github.com/prometheus/client_golang/prometheus"
+	log "github.com/sirupsen/logrus"
 )
 
-func (c *Colloect) getnodes() {
-	for {
-		var lock sync.Mutex
-		api := "/api/nodes"
-		path := c.url + api
-		req, err := http.NewRequest("GET", path, nil)
-		if err != nil {
-			level.Error(c.logger).Log("msg", err)
-			reason := fmt.Sprintf("%s", err)
-			lock.Lock()
-			c.lastgetErrorTs.WithLabelValues(strconv.FormatInt(time.Now().Unix(), 10), reason, api).Inc()
-			lock.Unlock()
-		}
-		// auth
-		req.SetBasicAuth(c.user, c.passwd)
-		resp, _ := c.client.Do(req)
-		if false == httpnotok(resp, c.logger) {
-			break
-		} else {
-			data, err := ioutil.ReadAll(resp.Body)
-			var t node
-			err = json.Unmarshal(data, &t)
-			if err != nil {
-				level.Error(c.logger).Log("msg", err, "url", path)
-				reason := fmt.Sprintf("%s", err)
-				lock.Lock()
-				c.lastgetErrorTs.WithLabelValues(strconv.FormatInt(time.Now().Unix(), 10), reason, api).Inc()
-				lock.Unlock()
-			} else {
-				level.Info(c.logger).Log("msg", "get nodes metrics success!")
-			}
-			for _, v := range t {
-				c.nodeuptime.WithLabelValues(v.Name).Set(float64(v.Uptime))
-				pid, _ := strconv.Atoi(v.OsPid)
-				c.pid.WithLabelValues(v.Name).Set(float64(pid))
-				c.memused.WithLabelValues(v.Name).Set(float64(v.MemUsed))
-				if v.MemAlarm == true {
-					c.memalarm.WithLabelValues(v.Name).Set(1.0)
-				} else {
-					c.memalarm.WithLabelValues(v.Name).Set(0.0)
-				}
-				c.memlimit.WithLabelValues(v.Name).Set(float64(v.MemLimit))
-				c.diskfreelimit.WithLabelValues(v.Name).Set(float64(v.DiskFreeLimit))
-				if v.DiskFreeAlarm == true {
-					c.diskfreealarm.WithLabelValues(v.Name).Set(1.0)
-				} else {
-					c.diskfreealarm.WithLabelValues(v.Name).Set(0.0)
-				}
-				c.fdtotal.WithLabelValues(v.Name).Set(float64(v.FdTotal))
-				c.fdused.WithLabelValues(v.Name).Set(float64(v.FdUsed))
-				c.io_file_handle_open_attempt_count.WithLabelValues(v.Name).Set(float64(v.IoFileHandleOpenAttemptCount))
-				c.socketstotal.WithLabelValues(v.Name).Set(float64(v.SocketsTotal))
-				c.socketsused.WithLabelValues(v.Name).Set(float64(v.SocketsUsed))
-				c.ioreadavgtime.WithLabelValues(v.Name).Set(float64(v.IoReadAvgTime))
-				c.iowriteavgtime.WithLabelValues(v.Name).Set(float64(v.IoWriteAvgTime))
-				c.iosyncavgtime.WithLabelValues(v.Name).Set(float64(v.IoSyncAvgTime))
-				c.ioseekavgtime.WithLabelValues(v.Name).Set(float64(v.IoSeekAvgTime))
-				c.gcnum.WithLabelValues(v.Name).Set(float64(v.GcNum))
-				c.proctotal.WithLabelValues(v.Name).Set(float64(v.ProcTotal))
-				c.procused.WithLabelValues(v.Name).Set(float64(v.ProcUsed))
-				c.runqueue.WithLabelValues(v.Name).Set(float64(v.RunQueue))
-			}
-			time.Sleep(c.timeInterval)
-		}
+// 定义desc,调用MustNewConstMetric生产指标并通过channel传递数据
+var (
+	nodehealth = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "health"),
+		"api status(0 for error, 1 for success).",
+		[]string{"api"}, nil)
+	nodeuptime = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "up_time"),
+		"node uptime.",
+		[]string{"node"}, nil)
+	fdtotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "fd_total"),
+		"File descriptors available.",
+		[]string{"node"}, nil)
+	fdused = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "fd_used"),
+		"File descriptors used.",
+		[]string{"node"}, nil)
+	memused = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "mem_used"),
+		"Total amount of memory used.",
+		[]string{"node"}, nil)
+	memlimit = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "memlimit"),
+		"Memory usage high watermark.",
+		[]string{"node"}, nil)
+	socketstotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "sockets_total"),
+		"Sockets available.",
+		[]string{"node"}, nil)
+	socketsused = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "sockets_used"),
+		"Sockets used.",
+		[]string{"node"}, nil)
+	ioreadavgtime = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "io_read_avg_time"),
+		"io read avg time.",
+		[]string{"node"}, nil)
+	iowriteavgtime = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "io_write_avg_time"),
+		"io write avg time.",
+		[]string{"node"}, nil)
+	ioseekavgtime = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "io_seek_avg_time"),
+		"io seek avg time.",
+		[]string{"node"}, nil)
+	iosyncavgtime = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "io_sync_avg_time"),
+		"io sync avg time.",
+		[]string{"node"}, nil)
+	gcnum = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "gc_num"),
+		"GC runs num.",
+		[]string{"node"}, nil)
+	gcbytesreclaimed = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "gc_bytes_reclaimed"),
+		"Bytes reclaimed by GC.",
+		[]string{"node"}, nil)
+	proctotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "proc_total"),
+		"Erlang process limit.",
+		[]string{"node"}, nil)
+	procused = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "proc_used"),
+		"Erlang processes used.",
+		[]string{"node"}, nil)
+	runqueue = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "node", "run_queue"),
+		"Runtime run queue.",
+		[]string{"node"}, nil)
+)
+
+// var name  type value,判断结构体是否满足接口
+var _ Scraper = ScrapeNode{}
+
+type ScrapeNode struct{}
+
+func (ScrapeNode) Name() string {
+	return "node"
+}
+
+func (ScrapeNode) Help() string {
+	return "collect node metrics,true or false"
+}
+func (ScrapeNode) Scrape(client *MqClient, ch chan<- prometheus.Metric) error {
+	endpoint := "/nodes"
+	data, err := client.Request(endpoint)
+	var t node
+	err = json.Unmarshal(data, &t)
+	if err != nil {
+		reason := fmt.Sprintf("%v,%v", endpoint, err)
+		log.Errorf("Unmarshal  JSON err:%v", endpoint, reason)
 	}
+	// 设定值
+	for _, v := range t {
+		// MustNewConstMetric(desc *Desc, valueType ValueType, value float64, labelValues ...string) Metric
+		ch <- prometheus.MustNewConstMetric(nodehealth, prometheus.GaugeValue, 1.0, endpoint)
+		ch <- prometheus.MustNewConstMetric(nodeuptime, prometheus.GaugeValue, float64(v.Uptime), v.Name)
+		ch <- prometheus.MustNewConstMetric(fdtotal, prometheus.GaugeValue, float64(v.FdTotal), v.Name)
+		ch <- prometheus.MustNewConstMetric(fdused, prometheus.GaugeValue, float64(v.FdUsed), v.Name)
+		ch <- prometheus.MustNewConstMetric(memlimit, prometheus.GaugeValue, float64(v.MemLimit), v.Name)
+		ch <- prometheus.MustNewConstMetric(socketstotal, prometheus.GaugeValue, float64(v.SocketsTotal), v.Name)
+		ch <- prometheus.MustNewConstMetric(socketsused, prometheus.GaugeValue, float64(v.SocketsUsed), v.Name)
+		ch <- prometheus.MustNewConstMetric(ioreadavgtime, prometheus.GaugeValue, float64(v.IoReadAvgTime), v.Name)
+		ch <- prometheus.MustNewConstMetric(iowriteavgtime, prometheus.GaugeValue, float64(v.IoWriteAvgTime), v.Name)
+		ch <- prometheus.MustNewConstMetric(ioseekavgtime, prometheus.GaugeValue, float64(v.IoSeekAvgTime), v.Name)
+		ch <- prometheus.MustNewConstMetric(iosyncavgtime, prometheus.GaugeValue, float64(v.IoSyncAvgTime), v.Name)
+		ch <- prometheus.MustNewConstMetric(gcnum, prometheus.GaugeValue, float64(v.GcNum), v.Name)
+		ch <- prometheus.MustNewConstMetric(gcbytesreclaimed, prometheus.GaugeValue, float64(v.GcBytesReclaimed), v.Name)
+		ch <- prometheus.MustNewConstMetric(proctotal, prometheus.GaugeValue, float64(v.ProcTotal), v.Name)
+		ch <- prometheus.MustNewConstMetric(procused, prometheus.GaugeValue, float64(v.ProcUsed), v.Name)
+		ch <- prometheus.MustNewConstMetric(runqueue, prometheus.GaugeValue, float64(v.RunQueue), v.Name)
+	}
+
+	return nil
 }

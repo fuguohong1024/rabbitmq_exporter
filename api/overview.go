@@ -3,60 +3,101 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/go-kit/kit/log/level"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"sync"
-	"time"
+	"github.com/prometheus/client_golang/prometheus"
+	log "github.com/sirupsen/logrus"
 )
 
-//GET /api/overview
-func (c *Colloect) getoverview() {
-	for {
-		var lock sync.Mutex
-		api := "/api/overview"
-		path := c.url + api
-		req, err := http.NewRequest("GET", path, nil)
-		if err != nil {
-			level.Error(c.logger).Log("msg", err)
-			reason := fmt.Sprintf("%s", err)
-			lock.Lock()
-			c.lastgetErrorTs.WithLabelValues(strconv.FormatInt(time.Now().Unix(), 10), reason, api).Inc()
-			lock.Unlock()
-		}
-		// auth
-		req.SetBasicAuth(c.user, c.passwd)
-		resp, _ := c.client.Do(req)
-		if false == httpnotok(resp, c.logger) {
-			break
-		} else {
-			data, err := ioutil.ReadAll(resp.Body)
-			var t overview
-			err = json.Unmarshal(data, &t)
-			if err != nil {
-				level.Error(c.logger).Log("msg", err, "url", path)
-				reason := fmt.Sprintf("%s", err)
-				lock.Lock()
-				c.lastgetErrorTs.WithLabelValues(strconv.FormatInt(time.Now().Unix(), 10), reason, api).Inc()
-				lock.Unlock()
-			} else {
-				level.Info(c.logger).Log("msg", "get overview metrics success!")
-			}
-			c.connectionsTotal.WithLabelValues(t.ClusterName).Set(float64(t.ObjectTotals.Connections))
-			c.channelsTotal.WithLabelValues(t.ClusterName).Set(float64(t.ObjectTotals.Channels))
-			c.queuesTotal.WithLabelValues(t.ClusterName).Set(float64(t.ObjectTotals.Queues))
-			c.consumersTotal.WithLabelValues(t.ClusterName).Set(float64(t.ObjectTotals.Consumers))
-			c.exchangesTotal.WithLabelValues(t.ClusterName).Set(float64(t.ObjectTotals.Exchanges))
-			c.queuetotalsmessages.WithLabelValues(t.ClusterName).Set(float64(t.QueueTotals.Messages))
-			c.queuereadymessages.WithLabelValues(t.ClusterName).Set(float64(t.QueueTotals.MessagesReady))
-			c.queueunackmessages.WithLabelValues(t.ClusterName).Set(float64(t.QueueTotals.MessagesUnacknowledged))
-			c.messagestatspublish.WithLabelValues(t.ClusterName).Set(float64(t.MessageStats.Publish))
-			c.messagestatspublishrate.WithLabelValues(t.ClusterName).Set(float64(t.MessageStats.PublishDetails.Rate))
-			c.messagestatsdeliverget.WithLabelValues(t.ClusterName).Set(float64(t.MessageStats.DeliverGet))
-			c.messagestatsdelivergetrate.WithLabelValues(t.ClusterName).Set(float64(t.MessageStats.DeliverGetDetails.Rate))
+// 定义desc,调用MustNewConstMetric生产指标并通过channel传递数据
+var (
+	overviewhealth = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "health"),
+		"api status(0 for error, 1 for success).",
+		[]string{"api"}, nil)
+	queuetotalsmessages = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "queue_totals_messages"),
+		"Total number of messages (ready plus unacknowledged).",
+		[]string{"cluster_name"}, nil)
+	queuereadymessages = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "queue_ready_messages"),
+		"Number of messages ready for delivery.",
+		[]string{"cluster_name"}, nil)
+	queueunackmessages = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "queue_unack_messages"),
+		"Number of unacknowledged messages.",
+		[]string{"cluster_name"}, nil)
+	messagestatspublish = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "message_stats_publish"),
+		"Messages published recently.",
+		[]string{"cluster_name"}, nil)
+	messagestatspublishrate = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "message_stats_publish_rate"),
+		"Message publish rate.",
+		[]string{"cluster_name"}, nil)
+	messagestatsdeliverget = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "message_stats_deliver_get"),
+		"Messages delivered to consumers recently.",
+		[]string{"cluster_name"}, nil)
+	messagestatsdelivergetrate = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "message_stats_deliver_get_rate"),
+		"message_stats_deliver_get_rate.",
+		[]string{"cluster_name"}, nil)
+	connectionsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "connections_total"),
+		"Total number of open connections.",
+		[]string{"cluster_name"}, nil)
+	channelsTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "channels_total"),
+		"Total number of open channels.",
+		[]string{"cluster_name"}, nil)
+	queuesTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "queues_total"),
+		"Total number of queues in use.",
+		[]string{"cluster_name"}, nil)
+	consumersTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "consumers_total"),
+		"Total number of message consumers.",
+		[]string{"cluster_name"}, nil)
+	exchangesTotal = prometheus.NewDesc(
+		prometheus.BuildFQName(namespace, "overview", "exchanges_total"),
+		"Total number of exchanges in use.",
+		[]string{"cluster_name"}, nil)
+)
 
-			time.Sleep(c.timeInterval)
-		}
+var _ Scraper = ScrapeOverview{}
+
+type ScrapeOverview struct{}
+
+func (ScrapeOverview) Name() string {
+	return "overview"
+}
+
+func (ScrapeOverview) Help() string {
+	return "collect overview metrics,true or false"
+}
+
+func (ScrapeOverview) Scrape(client *MqClient, ch chan<- prometheus.Metric) error {
+	endpoint := "/overview"
+	data, err := client.Request(endpoint)
+	var t overview
+	err = json.Unmarshal(data, &t)
+	if err != nil {
+		reason := fmt.Sprintf("%v,%v", endpoint, err)
+		log.Errorf("Unmarshal  JSON err:%v", endpoint, reason)
 	}
+	// 设定值
+	ch <- prometheus.MustNewConstMetric(overviewhealth, prometheus.GaugeValue, 1.0, endpoint)
+	ch <- prometheus.MustNewConstMetric(queuetotalsmessages, prometheus.GaugeValue, float64(t.QueueTotals.Messages), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(queuereadymessages, prometheus.GaugeValue, float64(t.QueueTotals.MessagesReady), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(queueunackmessages, prometheus.GaugeValue, float64(t.QueueTotals.MessagesUnacknowledged), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(messagestatspublish, prometheus.GaugeValue, float64(t.MessageStats.Publish), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(messagestatspublishrate, prometheus.GaugeValue, float64(t.MessageStats.PublishDetails.Rate), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(messagestatsdeliverget, prometheus.GaugeValue, float64(t.MessageStats.DeliverGet), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(messagestatsdelivergetrate, prometheus.GaugeValue, float64(t.MessageStats.DeliverGetDetails.Rate), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(connectionsTotal, prometheus.GaugeValue, float64(t.ObjectTotals.Connections), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(channelsTotal, prometheus.GaugeValue, float64(t.ObjectTotals.Channels), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(consumersTotal, prometheus.GaugeValue, float64(t.ObjectTotals.Consumers), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(queuesTotal, prometheus.GaugeValue, float64(t.ObjectTotals.Queues), t.ClusterName)
+	ch <- prometheus.MustNewConstMetric(exchangesTotal, prometheus.GaugeValue, float64(t.ObjectTotals.Exchanges), t.ClusterName)
+
+	return nil
 }
