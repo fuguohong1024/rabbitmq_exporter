@@ -101,7 +101,7 @@ func main() {
 
 var (
 	builduser = "fgh"
-	Version   = "v2"
+	Version   = "v3"
 	branch    = "master"                        // state of git tree, either "clean" or "dirty"
 	buildDate = time.Now().Format("2006-01-02") // build date, output of $(date +'%Y-%m-%dT%H:%M:%S')
 )

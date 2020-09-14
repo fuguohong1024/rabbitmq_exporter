@@ -25,40 +25,20 @@ package prometheus
 // (i.e. collection of multiple instances of the same Metric but with different
 // label values) like GaugeVec or SummaryVec, and the ExpvarCollector.
 type Collector interface {
-	// Describe sends the super-set of all possible descriptors of metrics
-	// collected by this Collector to the provided channel and returns once
-	// the last descriptor has been sent. The sent descriptors fulfill the
-	// consistency and uniqueness requirements described in the Desc
-	// documentation.
-	//
-	// It is valid if one and the same Collector sends duplicate
-	// descriptors. Those duplicates are simply ignored. However, two
-	// different Collectors must not send duplicate descriptors.
-	//
-	// Sending no descriptor at all marks the Collector as “unchecked”,
-	// i.e. no checks will be performed at registration time, and the
-	// Collector may yield any Metric it sees fit in its Collect method.
-	//
-	// This method idempotently sends the same descriptors throughout the
-	// lifetime of the Collector. It may be called concurrently and
-	// therefore must be implemented in a concurrency safe way.
-	//
-	// If a Collector encounters an error while executing this method, it
-	// must send an invalid descriptor (created with NewInvalidDesc) to
-	// signal the error to the registry.
+	// Describe将此收集器收集的指标的所有可能描述符的超集发送到提供的通道，并在发送完最后一个描述符后返回。
+	//发送的描述符满足Desc文档中描述的一致性和唯一性要求。
+	// 如果一个收集器和同一收集器发送重复的描述符，则该方法有效。 这些重复项将被忽略。
+	//但是，两个不同的收集器一定不能发送重复的描述符。
+	// 完全不发送任何描述符会将收集器标记为“未检查”，即在注册时将不执行检查，
+	//并且收集器可以在其Collect方法中产生它认为合适的任何度量标准。
+	//此方法在收集器的整个生命周期中均等地发送相同的描述符。 它可以被同时调用，因此必须以并发安全的方式实现。
+	//如果收集器在执行此方法时遇到错误，则它必须发送一个无效的描述符（使用NewInvalidDesc创建），以将错误信号通知注册表。
 	Describe(chan<- *Desc)
-	// Collect is called by the Prometheus registry when collecting
-	// metrics. The implementation sends each collected metric via the
-	// provided channel and returns once the last metric has been sent. The
-	// descriptor of each sent metric is one of those returned by Describe
-	// (unless the Collector is unchecked, see above). Returned metrics that
-	// share the same descriptor must differ in their variable label
-	// values.
-	//
-	// This method may be called concurrently and must therefore be
-	// implemented in a concurrency safe way. Blocking occurs at the expense
-	// of total performance of rendering all registered metrics. Ideally,
-	// Collector implementations support concurrent readers.
+	//收集指标时，Prometheus注册表会调用“收集”。 该实现通过提供的通道发送每个收集的度量，并在发送完最后一个度量后返回。
+	//每个发送的指标的描述符是Describe返回的指标之一（除非未选中收集器，请参见上文）。
+	//共享相同描述符的返回指标必须在其可变标签值上有所不同。
+	//可以同时调用此方法，因此必须以并发安全的方式实现。
+	//发生阻塞会以呈现所有已注册指标的总体性能为代价。 理想情况下，收集器实现支持并发读取器。
 	Collect(chan<- Metric)
 }
 

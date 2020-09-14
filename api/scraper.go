@@ -5,6 +5,9 @@ import (
 )
 
 // 每个抓取接口实现自己的方法来抓取数据
+// Scraper接口Scrape方法
+// exporter满足Collect接口
+// exporter调用Scraper接口Scrape方法收集数据
 
 // 自定义抓取接口,方法由结构体具体定义
 type Scraper interface {

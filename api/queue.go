@@ -60,8 +60,8 @@ func (ScrapeQueue) Scrape(client *MqClient, ch chan<- prometheus.Metric) error {
 	if err != nil {
 		return err
 	}
+	ch <- prometheus.MustNewConstMetric(queuehealth, prometheus.GaugeValue, 1.0, endpoint)
 	for _, v := range t {
-		ch <- prometheus.MustNewConstMetric(queuehealth, prometheus.GaugeValue, 1.0, endpoint)
 		ch <- prometheus.MustNewConstMetric(memory, prometheus.GaugeValue, float64(v.Memory), v.Node, v.Name)
 		ch <- prometheus.MustNewConstMetric(messagesready, prometheus.GaugeValue, float64(v.MessagesReady), v.Node, v.Name)
 		ch <- prometheus.MustNewConstMetric(messagesunack, prometheus.GaugeValue, float64(v.MessagesUnacknowledged), v.Node, v.Name)

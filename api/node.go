@@ -98,9 +98,9 @@ func (ScrapeNode) Scrape(client *MqClient, ch chan<- prometheus.Metric) error {
 		return err
 	}
 	// 设定值
+	ch <- prometheus.MustNewConstMetric(nodehealth, prometheus.GaugeValue, 1.0, endpoint)
 	for _, v := range t {
 		// MustNewConstMetric(desc *Desc, valueType ValueType, value float64, labelValues ...string) Metric
-		ch <- prometheus.MustNewConstMetric(nodehealth, prometheus.GaugeValue, 1.0, endpoint)
 		ch <- prometheus.MustNewConstMetric(nodeuptime, prometheus.GaugeValue, float64(v.Uptime), v.Name)
 		ch <- prometheus.MustNewConstMetric(fdtotal, prometheus.GaugeValue, float64(v.FdTotal), v.Name)
 		ch <- prometheus.MustNewConstMetric(fdused, prometheus.GaugeValue, float64(v.FdUsed), v.Name)
