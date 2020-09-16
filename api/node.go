@@ -104,6 +104,7 @@ func (ScrapeNode) Scrape(client *MqClient, ch chan<- prometheus.Metric) error {
 		ch <- prometheus.MustNewConstMetric(nodeuptime, prometheus.GaugeValue, float64(v.Uptime), v.Name)
 		ch <- prometheus.MustNewConstMetric(fdtotal, prometheus.GaugeValue, float64(v.FdTotal), v.Name)
 		ch <- prometheus.MustNewConstMetric(fdused, prometheus.GaugeValue, float64(v.FdUsed), v.Name)
+		ch <- prometheus.MustNewConstMetric(memused, prometheus.GaugeValue, float64(v.MemUsed), v.Name)
 		ch <- prometheus.MustNewConstMetric(memlimit, prometheus.GaugeValue, float64(v.MemLimit), v.Name)
 		ch <- prometheus.MustNewConstMetric(socketstotal, prometheus.GaugeValue, float64(v.SocketsTotal), v.Name)
 		ch <- prometheus.MustNewConstMetric(socketsused, prometheus.GaugeValue, float64(v.SocketsUsed), v.Name)
