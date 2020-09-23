@@ -63,8 +63,9 @@ func main() {
 	}
 
 	// 注册
-	prometheus.MustRegister(exporter)
-
+	//prometheus.MustRegister(exporter)
+	reg := prometheus.NewRegistry()
+	reg.MustRegister(exporter)
 	// 设置路由函数
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`<html>
@@ -76,9 +77,9 @@ func main() {
 	})
 
 	http.Handle(*metricsPath, promhttp.InstrumentMetricHandler(
-		prometheus.DefaultRegisterer,
+		reg,
 		promhttp.HandlerFor(
-			prometheus.DefaultGatherer,
+			reg,
 			promhttp.HandlerOpts{
 				ErrorLog: log.StandardLogger(),
 			},

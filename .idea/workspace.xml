@@ -25,9 +25,9 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a1b24e3-936c-4a1e-b769-9a4b6d5d1748" name="Default Changelist" comment="fix bug">
+    <list default="true" id="5a1b24e3-936c-4a1e-b769-9a4b6d5d1748" name="Default Changelist" comment="add metrics">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/node.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/node.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -137,7 +137,8 @@
     <MESSAGE value="v2" />
     <MESSAGE value="new" />
     <MESSAGE value="fix bug" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix bug" />
+    <MESSAGE value="add metrics" />
+    <option name="LAST_COMMIT_MESSAGE" value="add metrics" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
@@ -147,22 +148,22 @@
       <screen x="0" y="0" width="1366" height="728" />
     </state>
     <state x="380" y="164" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.728@0.0.1366.728" timestamp="1599926578025" />
-    <state width="1323" height="179" key="GridCell.Tab.0.bottom" timestamp="1600048301229">
+    <state width="1323" height="179" key="GridCell.Tab.0.bottom" timestamp="1600219867034">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1600048301229" />
-    <state width="1323" height="179" key="GridCell.Tab.0.center" timestamp="1600048301229">
+    <state width="1323" height="179" key="GridCell.Tab.0.bottom/0.0.1366.728@0.0.1366.728" timestamp="1600219867034" />
+    <state width="1323" height="179" key="GridCell.Tab.0.center" timestamp="1600219867033">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1600048301229" />
-    <state width="1323" height="179" key="GridCell.Tab.0.left" timestamp="1600048301228">
+    <state width="1323" height="179" key="GridCell.Tab.0.center/0.0.1366.728@0.0.1366.728" timestamp="1600219867033" />
+    <state width="1323" height="179" key="GridCell.Tab.0.left" timestamp="1600219867033">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1600048301228" />
-    <state width="1323" height="179" key="GridCell.Tab.0.right" timestamp="1600048301229">
+    <state width="1323" height="179" key="GridCell.Tab.0.left/0.0.1366.728@0.0.1366.728" timestamp="1600219867033" />
+    <state width="1323" height="179" key="GridCell.Tab.0.right" timestamp="1600219867034">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state width="1323" height="179" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1600048301229" />
+    <state width="1323" height="179" key="GridCell.Tab.0.right/0.0.1366.728@0.0.1366.728" timestamp="1600219867034" />
     <state x="275" y="96" key="Vcs.Push.Dialog.v2" timestamp="1599720212040">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
