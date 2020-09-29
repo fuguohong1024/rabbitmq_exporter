@@ -25,9 +25,17 @@
     </select>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5a1b24e3-936c-4a1e-b769-9a4b6d5d1748" name="Default Changelist" comment="add metrics">
+    <list default="true" id="5a1b24e3-936c-4a1e-b769-9a4b6d5d1748" name="Default Changelist" comment="fix bug">
+      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rabbimq_exporter" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rabbimq_exporter.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rabbitmq_exporter" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rabbitmq_exporter.exe" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/rabbitmq_exporterv5" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/set" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,18 +144,18 @@
     <MESSAGE value="add check" />
     <MESSAGE value="v2" />
     <MESSAGE value="new" />
-    <MESSAGE value="fix bug" />
     <MESSAGE value="add metrics" />
-    <option name="LAST_COMMIT_MESSAGE" value="add metrics" />
+    <MESSAGE value="fix bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix bug" />
   </component>
   <component name="VgoProject">
     <integration-enabled>true</integration-enabled>
   </component>
   <component name="WindowStateProjectService">
-    <state x="380" y="164" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1599926578025">
+    <state x="380" y="164" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1601366475330">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
-    <state x="380" y="164" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.728@0.0.1366.728" timestamp="1599926578025" />
+    <state x="380" y="164" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1366.728@0.0.1366.728" timestamp="1601366475330" />
     <state width="1323" height="179" key="GridCell.Tab.0.bottom" timestamp="1600219867034">
       <screen x="0" y="0" width="1366" height="728" />
     </state>
