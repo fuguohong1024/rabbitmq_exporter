@@ -17,4 +17,4 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o rabbitmq_exporter -ldflags
 FROM alpine:3.11.6
 WORKDIR /root
 COPY --from=builder /root/myapp/rabbitmq_exporter /rabbitmq_exporter
-ENTRYPOINT ["/harbor_exporter"]
+ENTRYPOINT ["/rabbitmq_exporter"]
